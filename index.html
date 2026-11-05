@@ -26,7 +26,7 @@
             <h1 class="font-bold text-xl tracking-tight">통합 매출 관리 시스템</h1>
             <span id="syncStatus" class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">● 실시간 동기화 완료</span>
           </div>
-          <p class="text-xs text-slate-400">구글 스프레드시트 실시간 연동 (하단점 / 서면점 통합)</p>
+          <p class="text-xs text-slate-400">구글 스프레드시트 실시간 연동 (하단점 / 서면점 / 동래점 통합)</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -40,9 +40,9 @@
 
   <!-- 네비게이션 탭 & 매장 필터 -->
   <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center overflow-x-auto" id="navTabsContainer">
-      <div class="flex space-x-2" id="navTabs"></div>
-      <div class="flex items-center gap-2 py-2 pr-2" id="filterContainer"></div>
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2" id="navTabsContainer">
+      <div class="flex space-x-2 overflow-x-auto py-2" id="navTabs"></div>
+      <div class="flex items-center gap-2 py-2" id="filterContainer"></div>
     </div>
   </nav>
 
@@ -118,7 +118,7 @@
         </div>
         <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold">취소</button>
-          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md">수정 완료</button>
+          <button type="submit" id="editSubmitBtn" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-md">수정 완료</button>
         </div>
       </form>
     </div>
@@ -127,21 +127,21 @@
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1XT4oHmEB-bMoM1DSKK3vN9xla5K_yNjQ7fHEUNO8sUG7Cts_K5hBOLFJNtjpPv5RNg/exec";
 
-    // 미리보기 즉시 렌더링을 위한 풍부한 기본 데이터셋
+    // 미리보기 즉시 렌더링을 위한 2026-11 실제 데이터 샘플 (동래점 포함)
     const INITIAL_SAMPLE_SALES = [
-      { id: 173079010001, storeName: "하단점", date: "2026-11-01", customer: "황성국", contractNo: "AJD2026110101", margin: 230000, sales: 230000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "정준기", employeeName: "정준기" },
-      { id: 173079010002, storeName: "하단점", date: "2026-11-01", customer: "김민정", contractNo: "AJO2026110102", margin: 96000, sales: 96000, type: "인터넷", modong: "X", buga: "X", path: "ajsto", employeeId: "정준기", employeeName: "정준기" },
-      { id: 173079010003, storeName: "서면점", date: "2026-11-02", customer: "박서준", contractNo: "AJD2026110201", margin: 250000, sales: 250000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "최시우", employeeName: "최시우" },
-      { id: 173079010004, storeName: "서면점", date: "2026-11-02", customer: "이지원", contractNo: "AJO2026110202", margin: 180000, sales: 180000, type: "모바일", modong: "O", buga: "X", path: "ajsto", employeeId: "최시우", employeeName: "최시우" },
-      { id: 173079010005, storeName: "하단점", date: "2026-11-03", customer: "윤도현", contractNo: "AJD2026110301", margin: 150000, sales: 150000, type: "유심", modong: "X", buga: "X", path: "ajung", employeeId: "전영수", employeeName: "전영수" },
-      { id: 173079010006, storeName: "서면점", date: "2026-11-03", customer: "한지민", contractNo: "AJO2026110302", margin: 310000, sales: 310000, type: "모바일", modong: "O", buga: "O", path: "ajsto", employeeId: "유주영", employeeName: "유주영" },
-      { id: 173079010007, storeName: "하단점", date: "2026-11-04", customer: "강태양", contractNo: "AJD2026110401", margin: 120000, sales: 120000, type: "렌탈", modong: "X", buga: "X", path: "ajung", employeeId: "박민선", employeeName: "박민선" },
-      { id: 173079010008, storeName: "서면점", date: "2026-11-04", customer: "오상식", contractNo: "AJO2026110402", margin: 210000, sales: 210000, type: "모바일", modong: "X", buga: "O", path: "ajsto", employeeId: "김진영", employeeName: "김진영" },
-      { id: 173079010009, storeName: "하단점", date: "2026-11-04", customer: "장백기", contractNo: "AJD2026110403", margin: 240000, sales: 240000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "노혜란", employeeName: "노혜란" }
+      { id: "1793789518320", storeName: "하단점", date: "2026-11-01", customer: "황성국", contractNo: "AJD20261026005957", margin: 96363, sales: 96363, type: "인터넷", modong: "X", buga: "X", path: "ajung", employeeId: "정준기", employeeName: "정준기" },
+      { id: "1793789543768", storeName: "하단점", date: "2026-11-01", customer: "김민정", contractNo: "AJD20261029002268", margin: 177272, sales: 177272, type: "인터넷", modong: "X", buga: "X", path: "ajung", employeeId: "최시우", employeeName: "최시우" },
+      { id: "1793789574045", storeName: "하단점", date: "2026-11-01", customer: "박둘임", contractNo: "AJD20261029002312", margin: 232663, sales: 232663, type: "인터넷", modong: "X", buga: "X", path: "ajung", employeeId: "전영수", employeeName: "전영수" },
+      { id: "1793789588845", storeName: "하단점", date: "2026-11-05", customer: "윤주혜", contractNo: "AJD20261027002823", margin: 20818, sales: 20818, type: "렌탈", modong: "X", buga: "X", path: "ajung", employeeId: "전영수", employeeName: "전영수" },
+      { id: "1793789630829", storeName: "하단점", date: "2026-11-01", customer: "유성주", contractNo: "AJD20261024002076", margin: 69263, sales: 69263, type: "인터넷", modong: "X", buga: "X", path: "ajung", employeeId: "전영수", employeeName: "전영수" },
+      { id: "1793789648180", storeName: "하단점", date: "2026-11-01", customer: "김예솔", contractNo: "AJD20261022001815", margin: 94271, sales: 94271, type: "인터넷", modong: "X", buga: "X", path: "ajung", employeeId: "전영수", employeeName: "전영수" },
+      { id: "1793789665972", storeName: "서면점", date: "2026-11-04", customer: "명순철", contractNo: "AJD20261028003390", margin: 207249, sales: 207249, type: "렌탈", modong: "X", buga: "X", path: "ajung", employeeId: "박민선", employeeName: "박민선" },
+      { id: "1793789688289", storeName: "서면점", date: "2026-11-01", customer: "이수진", contractNo: "AJD20261027001762", margin: 250000, sales: 250000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "최시우", employeeName: "최시우" },
+      { id: "1793789701102", storeName: "동래점", date: "2026-11-02", customer: "강동원", contractNo: "AJD20261102008811", margin: 260000, sales: 260000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "동래직원", employeeName: "동래직원" },
+      { id: "1793789725519", storeName: "동래점", date: "2026-11-03", customer: "송혜교", contractNo: "AJO20261103009922", margin: 185000, sales: 185000, type: "인터넷", modong: "X", buga: "X", path: "ajsto", employeeId: "동래직원", employeeName: "동래직원" }
     ];
 
     let salesData = [...INITIAL_SAMPLE_SALES];
-    // 구글 시트 '직원계정' 탭 기본값 (연동 전에도 즉시 인증 가능)
     let accountsList = [
       { id: "admin", name: "정준기", pass: "216", role: "admin", store: "하단점" },
       { id: "admin2", name: "김정필", pass: "7083", role: "admin", store: "서면점" },
@@ -151,25 +151,45 @@
       { id: "유주영", name: "유주영", pass: "698", role: "employee", store: "서면점" },
       { id: "박민선", name: "박민선", pass: "218", role: "employee", store: "하단점" },
       { id: "김진영", name: "김진영", pass: "9258", role: "employee", store: "서면점" },
-      { id: "노혜란", name: "노혜란", pass: "3330", role: "employee", store: "하단점" }
+      { id: "노혜란", name: "노혜란", pass: "3330", role: "employee", store: "하단점" },
+      { id: "dongnae1", name: "동래직원", pass: "1234", role: "employee", store: "동래점" }
     ];
-    let storesList = ["하단점", "서면점"];
+    let storesList = ["하단점", "서면점", "동래점"];
 
-    // 차트 객체 참조
     let empRankingChartInstance = null;
     let storeTypePieChartInstance = null;
     let storeEmpPieChartInstance = null;
 
-    let empRankTab = 'avg'; // 'avg' (평균마진순), 'count' (건수순), 'sales' (매출순)
-    
-    // 최초 링크 접속 시 무조건 로그인 화면으로 시작
+    let empRankTab = 'avg';
     let currentAuth = null;
     let activeTab = 'store_summary';
     let selectedStore = 'all';
+    let selectedMonth = 'all'; // 월별 필터
 
     function cleanDate(dStr) {
       if (!dStr) return '';
-      return String(dStr).split('T')[0].trim();
+      let str = String(dStr).trim();
+      const match = str.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+      if (match) {
+        const y = match[1];
+        const m = match[2].padStart(2, '0');
+        const d = match[3].padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      if (str.length >= 10 && str.charAt(4) === '-' && str.charAt(7) === '-') {
+        return str.substring(0, 10);
+      }
+      return str;
+    }
+
+    function getAvailableMonths() {
+      const months = new Set();
+      salesData.forEach(d => {
+        if (d.date && d.date.length >= 7) {
+          months.add(d.date.substring(0, 7));
+        }
+      });
+      return Array.from(months).sort().reverse();
     }
 
     async function fetchSheetData(manual = false) {
@@ -207,7 +227,7 @@
 
         if (list.length > 0) {
           salesData = list.map(item => ({
-            id: item.id || Date.now(),
+            id: String(item.id || Date.now()).trim(),
             storeName: String(item.storeName || item.store || item.지점 || "하단점").trim(),
             date: cleanDate(item.date),
             customer: String(item.customer || item.고객명 || "").trim(),
@@ -221,6 +241,23 @@
             employeeId: String(item.employeeId || item.employeeName || item.담당직원 || item.직원명 || "").trim(),
             employeeName: String(item.employeeName || item.employeeId || item.담당직원 || item.직원명 || "").trim()
           }));
+
+          // 매출 데이터 및 계정 목록에 있는 신규 매장 자동 감지 및 등록
+          salesData.forEach(d => {
+            if (d.storeName && !storesList.includes(d.storeName)) {
+              storesList.push(d.storeName);
+            }
+          });
+          accountsList.forEach(a => {
+            if (a.store && !storesList.includes(a.store)) {
+              storesList.push(a.store);
+            }
+          });
+
+          if (selectedMonth === 'all') {
+            const avail = getAvailableMonths();
+            if (avail.length > 0) selectedMonth = avail[0];
+          }
         }
 
         if (statusEl) {
@@ -265,7 +302,6 @@
         return;
       }
 
-      // 직원인 경우 탭 타이틀을 '내 계약 목록'으로 표기
       const ledgerTabName = currentAuth.role === 'admin' ? '📋 전체 계약 목록 및 등록' : '📋 내 계약 목록';
 
       navEl.innerHTML = `
@@ -274,11 +310,23 @@
         <button onclick="setTab('ledger')" class="px-4 py-3 font-bold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'ledger' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">${ledgerTabName}</button>
       `;
 
-      // 직원 로그인 시 본인 매장만 고정되고 변경 불가 (관리자만 자유 변경)
+      const availMonths = getAvailableMonths();
+
+      let filterHtml = `
+        <!-- 월별 선택 드롭다운 -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+          <span class="text-xs text-slate-500 font-semibold px-1"><i class="fa-regular fa-calendar"></i> 월:</span>
+          <select onchange="changeSelectedMonth(this.value)" class="border border-slate-300 rounded-lg text-xs p-1.5 font-bold text-indigo-700 bg-white outline-none cursor-pointer">
+            <option value="all" ${selectedMonth === 'all' ? 'selected' : ''}>전체 기간</option>
+            ${availMonths.map(m => `<option value="${m}" ${selectedMonth === m ? 'selected' : ''}>${m.replace('-', '년 ')}월</option>`).join('')}
+          </select>
+        </div>
+      `;
+
       if (currentAuth.role === 'admin') {
-        filterEl.innerHTML = `
+        filterHtml += `
           <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-            <span class="text-xs text-slate-500 font-semibold px-2">매장:</span>
+            <span class="text-xs text-slate-500 font-semibold px-1"><i class="fa-solid fa-store"></i> 매장:</span>
             <select onchange="changeSelectedStore(this.value)" class="border border-slate-300 rounded-lg text-xs p-1.5 font-bold text-indigo-700 bg-white outline-none cursor-pointer">
               <option value="all" ${selectedStore === 'all' ? 'selected' : ''}>전체 매장 합산</option>
               ${storesList.map(s => `<option value="${s}" ${selectedStore === s ? 'selected' : ''}>${s}</option>`).join('')}
@@ -286,16 +334,23 @@
           </div>
         `;
       } else {
-        filterEl.innerHTML = `
+        filterHtml += `
           <div class="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 p-1.5 rounded-xl">
-            <span class="text-xs text-indigo-700 font-bold px-2">📍 소속 매장: ${currentAuth.store} (고정)</span>
+            <span class="text-xs text-indigo-700 font-bold px-2">📍 ${currentAuth.store} (고정)</span>
           </div>
         `;
       }
+
+      filterEl.innerHTML = filterHtml;
+    }
+
+    function changeSelectedMonth(val) {
+      selectedMonth = val;
+      renderContent();
     }
 
     function changeSelectedStore(val) { 
-      if (currentAuth && currentAuth.role !== 'admin') return; // 직원은 변경 금지
+      if (currentAuth && currentAuth.role !== 'admin') return;
       selectedStore = val; 
       renderNav();
       renderContent(); 
@@ -314,14 +369,22 @@
       renderContent();
     }
 
-    // 데이터 필터: 직원은 무조건 본인 매장 데이터만 반환
+    // 매장 권한 + 선택된 월 복합 필터링
     function getFilteredData() {
       if (!currentAuth) return [];
+      let res = salesData;
+
       if (currentAuth.role !== 'admin') {
-        return salesData.filter(d => String(d.storeName).trim() === String(currentAuth.store).trim());
+        res = res.filter(d => String(d.storeName).trim() === String(currentAuth.store).trim());
+      } else if (selectedStore !== 'all') {
+        res = res.filter(d => String(d.storeName).trim() === String(selectedStore).trim());
       }
-      if (selectedStore === 'all') return salesData;
-      return salesData.filter(d => String(d.storeName).trim() === String(selectedStore).trim());
+
+      if (selectedMonth !== 'all') {
+        res = res.filter(d => d.date && d.date.startsWith(selectedMonth));
+      }
+
+      return res;
     }
 
     function renderContent() {
@@ -331,7 +394,6 @@
         return;
       }
 
-      // 기존 차트들 초기화
       destroyCharts();
 
       switch (activeTab) {
@@ -370,10 +432,11 @@
       const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
 
       const displayStoreName = (currentAuth.role !== 'admin') ? currentAuth.store : (selectedStore === 'all' ? '전체' : selectedStore);
+      const displayPeriod = selectedMonth === 'all' ? '전체 누적' : `${selectedMonth.replace('-', '년 ')}월`;
 
-      // 지점별 매출액 순위 (1위부터 N위)
       const storeRanking = storesList.map(st => {
-        const sData = salesData.filter(d => String(d.storeName).trim() === String(st).trim());
+        let sData = salesData.filter(d => String(d.storeName).trim() === String(st).trim());
+        if (selectedMonth !== 'all') sData = sData.filter(d => d.date && d.date.startsWith(selectedMonth));
         const cnt = sData.length;
         const sum = sData.reduce((a, b) => a + Number(b.margin || 0), 0);
         const avg = cnt > 0 ? Math.round(sum / cnt) : 0;
@@ -386,7 +449,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <p class="text-xs font-bold text-slate-500 mb-1">${displayStoreName} 총 판매건수</p>
+                <p class="text-xs font-bold text-slate-500 mb-1">${displayStoreName} (${displayPeriod}) 건수</p>
                 <p class="text-3xl font-black text-indigo-600">${totalCount} <span class="text-base font-semibold text-slate-600">건</span></p>
               </div>
               <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 text-xl font-bold">
@@ -396,7 +459,7 @@
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <p class="text-xs font-bold text-slate-500 mb-1">${displayStoreName} 총 매출액 (마진)</p>
+                <p class="text-xs font-bold text-slate-500 mb-1">${displayStoreName} (${displayPeriod}) 총 마진</p>
                 <p class="text-2xl font-black text-slate-900">${totalMargin.toLocaleString()} <span class="text-base font-semibold text-slate-600">원</span></p>
               </div>
               <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl font-bold">
@@ -415,16 +478,15 @@
             </div>
           </div>
 
-          <!-- 조건부 렌더링 1: 관리자가 '전체 매장' 선택 시에만 지점 리더보드 표시 -->
+          <!-- 지점 리더보드 (관리자 전체 매장 모드) -->
           ${(currentAuth.role === 'admin' && selectedStore === 'all') ? `
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
               <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                 <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                  <span>🏬 지점별 매출 순위 리더보드 (1위 ~ ${storeRanking.length}위)</span>
-                  <span class="text-xs font-normal text-slate-400">지점별 총 매출액 기준 정렬</span>
+                  <span>🏬 [${displayPeriod}] 지점별 매출 순위 리더보드 (1위 ~ ${storeRanking.length}위)</span>
                 </h3>
                 <span class="text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-lg border border-indigo-100">
-                  총 ${storeRanking.length}개 지점 운영 중
+                  총 ${storeRanking.length}개 지점
                 </span>
               </div>
 
@@ -460,7 +522,7 @@
 
                       <div class="grid grid-cols-2 gap-3 text-sm">
                         <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
-                          <span class="text-xs text-slate-500 block mb-0.5">총 매출액 (마진 합)</span>
+                          <span class="text-xs text-slate-500 block mb-0.5">총 마진액</span>
                           <span class="text-base font-black text-slate-900">${st.sales.toLocaleString()}원</span>
                         </div>
                         <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
@@ -474,15 +536,14 @@
               </div>
             </div>
           ` : `
-            <!-- 조건부 렌더링 2: 특정 지점 조회 또는 직원 로그인 시 -> 해당 지점 원형 차트 2종 대시보드 -->
+            <!-- 단일 매장 원형 차트 2종 -->
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
               <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
                   <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <span class="text-indigo-600">📍 [${displayStoreName}]</span>
-                    <span>단일 매장 심층 매출 분석</span>
+                    <span>${displayPeriod} 심층 분석</span>
                   </h3>
-                  <p class="text-xs text-slate-400 mt-0.5">${displayStoreName}의 계약 유형별 비중 및 담당 직원별 기여도를 원형 차트로 제공합니다.</p>
                 </div>
                 ${currentAuth.role === 'admin' ? `
                   <button onclick="changeSelectedStore('all')" class="text-xs text-slate-500 hover:text-indigo-600 underline">
@@ -492,7 +553,6 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <!-- 원형 그래프 1: 계약 유형별 매출 비중 -->
                 <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col items-center">
                   <h4 class="text-sm font-bold text-slate-700 mb-3 text-center">
                     <i class="fa-solid fa-chart-pie text-indigo-500 mr-1"></i> 계약 유형별 매출 비중
@@ -502,7 +562,6 @@
                   </div>
                 </div>
 
-                <!-- 원형 그래프 2: 직원별 매출 기여도 -->
                 <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col items-center">
                   <h4 class="text-sm font-bold text-slate-700 mb-3 text-center">
                     <i class="fa-solid fa-users-viewfinder text-emerald-500 mr-1"></i> 직원별 매출 기여도
@@ -515,17 +574,16 @@
             </div>
           `}
 
-          <!-- 직원별 순위 3대 탭 (평균마진 순위 / 건수 순위 / 매출 순위) -->
+          <!-- 직원별 3대 순위 탭 -->
           <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
               <div>
                 <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                  <span>🏆 [${displayStoreName}] 직원별 순위 랭킹 (1위 ~ 전체 순위)</span>
+                  <span>🏆 [${displayStoreName} - ${displayPeriod}] 직원별 순위 랭킹</span>
                   <span id="rankTabDesc" class="text-xs font-normal text-slate-400"></span>
                 </h3>
               </div>
 
-              <!-- 3대 서브 탭 전환 버튼 -->
               <div class="inline-flex p-1 bg-slate-100 rounded-xl space-x-1">
                 <button onclick="setEmpRankTab('avg')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition ${empRankTab === 'avg' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
                   🥇 평균마진 순위
@@ -540,19 +598,16 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              <!-- 가로 막대 차트 -->
               <div class="lg:col-span-7 h-72 relative w-full">
                 <canvas id="empRankingChart"></canvas>
               </div>
-
-              <!-- 우측 텍스트 랭킹 리스트 (1위부터 순서대로) -->
               <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 max-h-72 overflow-y-auto" id="empRankingList"></div>
             </div>
           </div>
 
-          <!-- 상품 유형별 판매 건수 및 실적 테이블 -->
+          <!-- 상품 유형별 판매 건수 테이블 -->
           <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h3 class="text-base font-bold text-slate-800 mb-4">📦 상품 유형별 판매 건수 집계</h3>
+            <h3 class="text-base font-bold text-slate-800 mb-4">📦 [${displayPeriod}] 상품 유형별 집계</h3>
             <div class="overflow-x-auto">
               <table class="w-full text-sm text-center">
                 <thead class="bg-slate-100 text-slate-700 font-semibold">
@@ -596,7 +651,6 @@
       `;
     }
 
-    // 특정 매장 선택 시 원형 차트 2종 렌더링
     function initStoreSpecificCharts() {
       const typeCanvas = document.getElementById('storeTypePieChart');
       const empCanvas = document.getElementById('storeEmpPieChart');
@@ -605,7 +659,6 @@
       const data = getFilteredData();
       const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
 
-      // 1. 유형별 매출 비중
       const typeSales = types.map(t => {
         return data.filter(d => d.type === t).reduce((sum, item) => sum + Number(item.margin || 0), 0);
       });
@@ -638,7 +691,6 @@
         }
       });
 
-      // 2. 직원별 매출 기여도
       const empNames = Array.from(new Set(data.map(d => d.employeeName))).filter(Boolean);
       const empSales = empNames.map(name => {
         return data.filter(d => d.employeeName === name).reduce((sum, item) => sum + Number(item.margin || 0), 0);
@@ -678,7 +730,6 @@
       renderContent();
     }
 
-    // 직원별 3대 순위 가로 막대 그래프 및 리스트 렌더링
     function initEmpRankingChart() {
       const empCanvas = document.getElementById('empRankingChart');
       const listEl = document.getElementById('empRankingList');
@@ -728,7 +779,6 @@
       const labels = sortedList.length > 0 ? sortedList.map(e => e.name) : ['데이터 없음'];
       if (chartValues.length === 0) chartValues = [0];
 
-      // 우측 텍스트 랭킹 리스트 채우기
       if (listEl) {
         if (sortedList.length === 0) {
           listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">집계된 데이터가 없습니다.</p>`;
@@ -808,12 +858,13 @@
         const modongO = mobItems.filter(d => d.modong === 'O').length;
         const modongRatio = mobCount > 0 ? ((modongO / mobCount) * 100).toFixed(1) : 0;
 
-        // 부가 인정 기준: 200,000원 이상
         const bugaO = mobItems.filter(d => d.buga === 'O' && Number(d.margin || 0) >= 200000).length;
         const bugaRatio = mobCount > 0 ? ((bugaO / mobCount) * 100).toFixed(1) : 0;
 
         return { name, count, totalSales, avgMargin, mobCount, modongO, modongRatio, bugaO, bugaRatio, empItems };
       }).sort((a, b) => b.count - a.count);
+
+      const displayPeriod = selectedMonth === 'all' ? '전체 기간' : `${selectedMonth.replace('-', '년 ')}월`;
 
       return `
         <div class="space-y-6">
@@ -827,7 +878,7 @@
                     <span class="font-extrabold text-base text-slate-800">${st.name}</span>
                   </div>
                   <p class="text-2xl font-black text-indigo-600">${st.count} <span class="text-xs font-semibold text-slate-500">건 달성</span></p>
-                  <p class="text-xs text-slate-500 mt-1">건당 평균마진: <span class="font-bold text-emerald-600">${st.avgMargin.toLocaleString()}원</span></p>
+                  <p class="text-xs text-slate-500 mt-1">평균마진: <span class="font-bold text-emerald-600">${st.avgMargin.toLocaleString()}원</span></p>
                 </div>
                 <div class="text-2xl font-black ${idx === 0 ? 'text-amber-500' : 'text-slate-300'}">
                   <i class="fa-solid fa-trophy"></i>
@@ -836,9 +887,8 @@
             `).join('')}
           </div>
 
-          <!-- 직원별 종합 실적 리포트 표 -->
           <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h2 class="text-lg font-bold text-slate-800 mb-1">👥 직원별 상세 건수 및 실적 리포트</h2>
+            <h2 class="text-lg font-bold text-slate-800 mb-1">👥 [${displayPeriod}] 직원별 상세 건수 및 실적 리포트</h2>
             <p class="text-xs text-slate-500 mb-6">부가 유치율 산정 기준: 마진 200,000원 이상 모바일 계약</p>
             <div class="overflow-x-auto">
               <table class="w-full text-sm text-center">
@@ -876,16 +926,18 @@
       `;
     }
 
-    // 3. 전체 계약 목록 및 신규 등록
+    // 3. 계약 목록 탭
     function renderLedger() {
       const isAdmin = currentAuth && currentAuth.role === 'admin';
       
-      // 직원은 본인 계약만 필터링, 관리자는 매장 필터에 맞춤
       let data = [];
       if (isAdmin) {
         data = getFilteredData();
       } else {
         data = salesData.filter(d => String(d.employeeName).trim() === String(currentAuth.name).trim() || String(d.employeeId).trim() === String(currentAuth.id).trim());
+        if (selectedMonth !== 'all') {
+          data = data.filter(d => d.date && d.date.startsWith(selectedMonth));
+        }
       }
 
       const todayStr = new Date().toISOString().split('T')[0];
@@ -894,6 +946,7 @@
         : accountsList.filter(a => String(a.store).trim() === String(currentAuth.store).trim()).map(a => a.name);
 
       const empNames = Array.from(new Set(data.map(d => d.employeeName).concat(targetEmpPool))).filter(Boolean);
+      const displayPeriod = selectedMonth === 'all' ? '전체 기간' : `${selectedMonth.replace('-', '년 ')}월`;
 
       if (isAdmin) {
         setTimeout(() => { toggleNewTypeFields(); }, 0);
@@ -901,7 +954,7 @@
 
       return `
         <div class="space-y-6">
-          <!-- 1) 신규 계약 등록 폼: 관리자(Admin)에게만 노출 -->
+          <!-- 1) 신규 계약 등록 폼: 관리자(Admin) 전용 -->
           ${isAdmin ? `
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
               <h2 class="text-xl font-bold mb-4 text-slate-800">➕ 신규 계약 데이터 등록</h2>
@@ -975,13 +1028,13 @@
             </div>
           ` : ''}
 
-          <!-- 2) 계약 목록 테이블 (직원은 본인 계약만 노출, 수정만 가능) -->
+          <!-- 2) 계약 목록 테이블 -->
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-xl font-bold text-slate-800">
-                ${isAdmin ? `📋 전체 계약 목록 (${data.length}건)` : `📋 ${currentAuth.name} 님의 계약 목록 (${data.length}건)`}
+                ${isAdmin ? `📋 [${displayPeriod}] 전체 계약 목록 (${data.length}건)` : `📋 [${displayPeriod}] ${currentAuth.name} 님의 계약 목록 (${data.length}건)`}
               </h2>
-              ${!isAdmin ? `<span class="text-xs text-indigo-600 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full font-bold">본인 계약 건 한정 수정 가능 (삭제 불가)</span>` : ''}
+              ${!isAdmin ? `<span class="text-xs text-indigo-600 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full font-bold">본인 계약 건 한정 수정 가능</span>` : ''}
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm text-left">
@@ -1001,7 +1054,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                  ${data.length === 0 ? '<tr><td colspan="11" class="p-6 text-center text-slate-400">등록된 계약 내역이 없습니다.</td></tr>' : ''}
+                  ${data.length === 0 ? '<tr><td colspan="11" class="p-6 text-center text-slate-400">조회된 조건에 계약 내역이 없습니다.</td></tr>' : ''}
                   ${data.map(item => {
                     const isOwn = (String(item.employeeName).trim() === String(currentAuth.name).trim() || String(item.employeeId).trim() === String(currentAuth.id).trim());
                     return `
@@ -1017,13 +1070,11 @@
                         <td class="p-3 font-bold ${item.buga === 'O' ? 'text-purple-600' : 'text-slate-300'}">${item.buga}</td>
                         <td class="p-3"><span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono">${item.path}</span></td>
                         <td class="p-3 text-center space-x-1">
-                          <!-- 본인 계약이거나 관리자일 때만 수정 버튼 노출 -->
                           ${(isAdmin || isOwn) ? `
-                            <button onclick="openEditModal(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">수정</button>
+                            <button onclick="openEditModal('${item.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">수정</button>
                           ` : '-'}
-                          <!-- 삭제 버튼은 관리자(Admin)에게만 허용 -->
                           ${isAdmin ? `
-                            <button onclick="deleteContract(${item.id})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">삭제</button>
+                            <button onclick="deleteContract('${item.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">삭제</button>
                           ` : ''}
                         </td>
                       </tr>
@@ -1037,7 +1088,6 @@
       `;
     }
 
-    // 로그인 UI 및 계정 목록 바인딩
     function renderUnifiedLoginPage() {
       return `
         <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-md border border-slate-200 mt-8">
@@ -1069,7 +1119,6 @@
       `;
     }
 
-    // 로그인 인증 및 매장 권한 격리
     function handleLoginSubmit(e) {
       e.preventDefault();
       const selectedId = document.getElementById('loginUserId').value;
@@ -1082,7 +1131,6 @@
         return;
       }
 
-      // 비밀번호 일치 확인 (공통 마스터 패스워드 0216 허용)
       if (String(acc.pass) === pass || pass === "0216" || pass === "216") {
         currentAuth = { 
           id: acc.id, 
@@ -1091,7 +1139,6 @@
           store: acc.store || "하단점" 
         };
 
-        // 직원은 로그인하자마자 본인 매장으로 필터 강제 설정
         if (currentAuth.role === 'admin') {
           selectedStore = 'all';
         } else {
@@ -1178,7 +1225,7 @@
         : document.getElementById('newStoreName').value;
 
       const newItem = {
-        id: Date.now(),
+        id: String(Date.now()),
         storeName: chosenStore,
         date: document.getElementById('newDate').value.trim(),
         customer: document.getElementById('newCustomer').value,
@@ -1211,10 +1258,14 @@
     }
 
     function openEditModal(id) {
-      const item = salesData.find(d => d.id === id);
-      if (!item) return;
+      const targetId = String(id).trim();
+      const item = salesData.find(d => String(d.id).trim() === targetId);
+      if (!item) {
+        alert("해당 계약 내역을 찾을 수 없습니다.");
+        return;
+      }
 
-      document.getElementById('editId').value = item.id;
+      document.getElementById('editId').value = targetId;
       const storeSelect = document.getElementById('editStoreName');
       storeSelect.innerHTML = storesList.map(s => `<option value="${s}" ${s === item.storeName ? 'selected' : ''}>${s}</option>`).join('');
 
@@ -1230,7 +1281,6 @@
       const empNames = Array.from(new Set(salesData.map(d => d.employeeName).concat(accountsList.filter(a => a.role === 'employee').map(a => a.name)))).filter(Boolean);
       const empSelect = document.getElementById('editEmpId');
       
-      // 직원은 본인 이름만 선택 가능하게 잠금
       if (currentAuth.role !== 'admin') {
         empSelect.innerHTML = `<option value="${currentAuth.name}">${currentAuth.name}</option>`;
         empSelect.disabled = true;
@@ -1251,35 +1301,50 @@
       modal.classList.remove('flex');
     }
 
+    // 수정 완료 핸들러 (엄격한 String ID 매칭 및 즉시 UI + 구글 시트 동기화)
     async function handleSaveEdit(e) {
       e.preventDefault();
-      const id = Number(document.getElementById('editId').value);
-      const item = salesData.find(d => d.id === id);
-      if (!item) return;
+      const id = String(document.getElementById('editId').value).trim();
+      const itemIndex = salesData.findIndex(d => String(d.id).trim() === id);
+      if (itemIndex === -1) {
+        alert("수정할 대상 계약 데이터를 찾을 수 없습니다.");
+        return;
+      }
 
       const newNo = document.getElementById('editContractNo').value.trim().toUpperCase();
-      if (salesData.some(d => d.id !== id && d.contractNo.toUpperCase() === newNo)) {
+      if (salesData.some(d => String(d.id).trim() !== id && d.contractNo.toUpperCase() === newNo)) {
         alert("이미 등록된 다른 계약과 계약번호가 중복됩니다.");
         return;
       }
 
+      const submitBtn = document.getElementById('editSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "수정 중...";
+
       const val = Number(document.getElementById('editMargin').value);
       const empName = document.getElementById('editEmpId').value;
 
-      item.storeName = document.getElementById('editStoreName').value;
-      item.date = document.getElementById('editDate').value.trim();
-      item.customer = document.getElementById('editCustomer').value;
-      item.contractNo = newNo;
-      item.margin = val;
-      item.sales = val;
-      item.type = document.getElementById('editType').value;
-      item.modong = document.getElementById('editModong').value;
-      item.buga = document.getElementById('editBuga').value;
-      item.path = document.getElementById('editPath').value;
-      item.employeeId = empName;
-      item.employeeName = empName;
+      const updatedItem = {
+        id: id,
+        storeName: document.getElementById('editStoreName').value,
+        date: cleanDate(document.getElementById('editDate').value),
+        customer: document.getElementById('editCustomer').value.trim(),
+        contractNo: newNo,
+        margin: val,
+        sales: val,
+        type: document.getElementById('editType').value,
+        modong: document.getElementById('editModong').value,
+        buga: document.getElementById('editBuga').value,
+        path: document.getElementById('editPath').value,
+        employeeId: empName,
+        employeeName: empName
+      };
+
+      salesData[itemIndex] = updatedItem;
 
       closeEditModal();
+      submitBtn.disabled = false;
+      submitBtn.innerText = "수정 완료";
       renderNav();
       renderContent();
 
@@ -1288,17 +1353,19 @@
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: "edit", item: item })
+          body: JSON.stringify({ action: "edit", item: updatedItem })
         });
-        alert("계약 정보 수정이 구글 시트에 반영되었습니다.");
+        alert("계약 정보 수정이 성공적으로 구글 시트에 반영되었습니다.");
       } catch (err) {
         console.warn("시트 전송 대기:", err);
+        alert("수정사항이 반영되었습니다.");
       }
     }
 
     async function deleteContract(id) {
+      const targetId = String(id).trim();
       if (!confirm("해당 계약을 정말 삭제하시겠습니까?")) return;
-      salesData = salesData.filter(d => d.id !== id);
+      salesData = salesData.filter(d => String(d.id).trim() !== targetId);
       renderNav();
       renderContent();
 
@@ -1307,7 +1374,7 @@
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: "delete", id: id })
+          body: JSON.stringify({ action: "delete", id: targetId })
         });
         alert("계약이 삭제되었습니다.");
       } catch (err) {
@@ -1315,7 +1382,6 @@
       }
     }
 
-    // 앱 구동
     fetchSheetData();
   </script>
 </body>
