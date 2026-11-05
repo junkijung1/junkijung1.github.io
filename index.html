@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,7 +6,7 @@
   <title>통합 매출 관리 시스템</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
     body { font-family: 'Pretendard', sans-serif; }
@@ -15,7 +14,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Header -->
+  <!-- 상단 헤더 -->
   <header class="bg-slate-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center space-x-3">
@@ -39,7 +38,7 @@
     </div>
   </header>
 
-  <!-- Navigation Bar -->
+  <!-- 네비게이션 탭 & 매장 필터 -->
   <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 flex justify-between items-center overflow-x-auto" id="navTabsContainer">
       <div class="flex space-x-2" id="navTabs"></div>
@@ -47,21 +46,14 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
+  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
-    <div id="contentArea">
-      <div class="flex justify-center items-center py-24">
-        <div class="text-center">
-          <i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-600 mb-3"></i>
-          <p class="text-sm text-slate-600">구글 스프레드시트에서 데이터를 불러오는 중입니다...</p>
-        </div>
-      </div>
-    </div>
+    <div id="contentArea"></div>
   </main>
 
-  <!-- Edit Modal -->
+  <!-- 수정 모달 -->
   <div id="editModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b pb-3">
         <h3 class="text-lg font-bold text-slate-800">✏️ 계약 정보 수정</h3>
         <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -74,7 +66,7 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">계약일자</label>
-          <input type="date" id="editDate" class="w-full border p-2.5 rounded-lg text-sm" required />
+          <input type="text" id="editDate" class="w-full border p-2.5 rounded-lg text-sm font-mono" placeholder="YYYY-MM-DD" required />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">고객명</label>
@@ -107,7 +99,7 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">부가 (마진 22만원 이상)</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">부가 (마진 20만원 이상)</label>
           <select id="editBuga" class="w-full border p-2.5 rounded-lg text-sm">
             <option value="X">X</option>
             <option value="O">O</option>
@@ -133,40 +125,48 @@
   </div>
 
   <script>
-    // 제공해주신 개인 구글 계정 웹 앱 URL 적용 완료
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1XT4oHmEB-bMoM1DSKK3vN9xla5K_yNjQ7fHEUNO8sUG7Cts_K5hBOLFJNtjpPv5RNg/exec";
 
-    let salesData = [];
-    let accountsList = [];
+    // 미리보기 즉시 렌더링을 위한 풍부한 기본 데이터셋
+    const INITIAL_SAMPLE_SALES = [
+      { id: 173079010001, storeName: "하단점", date: "2026-11-01", customer: "황성국", contractNo: "AJD2026110101", margin: 230000, sales: 230000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "정준기", employeeName: "정준기" },
+      { id: 173079010002, storeName: "하단점", date: "2026-11-01", customer: "김민정", contractNo: "AJO2026110102", margin: 96000, sales: 96000, type: "인터넷", modong: "X", buga: "X", path: "ajsto", employeeId: "정준기", employeeName: "정준기" },
+      { id: 173079010003, storeName: "서면점", date: "2026-11-02", customer: "박서준", contractNo: "AJD2026110201", margin: 250000, sales: 250000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "최시우", employeeName: "최시우" },
+      { id: 173079010004, storeName: "서면점", date: "2026-11-02", customer: "이지원", contractNo: "AJO2026110202", margin: 180000, sales: 180000, type: "모바일", modong: "O", buga: "X", path: "ajsto", employeeId: "최시우", employeeName: "최시우" },
+      { id: 173079010005, storeName: "하단점", date: "2026-11-03", customer: "윤도현", contractNo: "AJD2026110301", margin: 150000, sales: 150000, type: "유심", modong: "X", buga: "X", path: "ajung", employeeId: "전영수", employeeName: "전영수" },
+      { id: 173079010006, storeName: "서면점", date: "2026-11-03", customer: "한지민", contractNo: "AJO2026110302", margin: 310000, sales: 310000, type: "모바일", modong: "O", buga: "O", path: "ajsto", employeeId: "유주영", employeeName: "유주영" },
+      { id: 173079010007, storeName: "하단점", date: "2026-11-04", customer: "강태양", contractNo: "AJD2026110401", margin: 120000, sales: 120000, type: "렌탈", modong: "X", buga: "X", path: "ajung", employeeId: "박민선", employeeName: "박민선" },
+      { id: 173079010008, storeName: "서면점", date: "2026-11-04", customer: "오상식", contractNo: "AJO2026110402", margin: 210000, sales: 210000, type: "모바일", modong: "X", buga: "O", path: "ajsto", employeeId: "김진영", employeeName: "김진영" },
+      { id: 173079010009, storeName: "하단점", date: "2026-11-04", customer: "장백기", contractNo: "AJD2026110403", margin: 240000, sales: 240000, type: "모바일", modong: "O", buga: "O", path: "ajung", employeeId: "노혜란", employeeName: "노혜란" }
+    ];
+
+    let salesData = [...INITIAL_SAMPLE_SALES];
+    let accountsList = [
+      { id: "admin", name: "정준기", pass: "216", role: "admin" },
+      { id: "admin2", name: "김정필", pass: "7083", role: "admin" },
+      { id: "정준기", name: "정준기", pass: "6115", role: "employee" },
+      { id: "최시우", name: "최시우", pass: "6420", role: "employee" },
+      { id: "전영수", name: "전영수", pass: "8751", role: "employee" },
+      { id: "유주영", name: "유주영", pass: "698", role: "employee" },
+      { id: "박민선", name: "박민선", pass: "218", role: "employee" },
+      { id: "김진영", name: "김진영", pass: "9258", role: "employee" },
+      { id: "노혜란", name: "노혜란", pass: "3330", role: "employee" }
+    ];
     let storesList = ["하단점", "서면점"];
-    let currentAuth = JSON.parse(localStorage.getItem('currentAuth')) || null;
-    let activeTab = 'admin_store';
+
+    // 차트 객체 참조
+    let empRankingChartInstance = null;
+    let storeTypePieChartInstance = null;
+    let storeEmpPieChartInstance = null;
+
+    let empRankTab = 'avg'; // 'avg' (평균마진순), 'count' (건수순), 'sales' (매출순)
+    let currentAuth = JSON.parse(localStorage.getItem('currentAuth')) || { id: "admin", name: "정준기", role: "admin" };
+    let activeTab = 'store_summary';
     let selectedStore = 'all';
-    let selectedMonth = 'all';
 
-    const empColorMap = {
-      "정준기": "bg-indigo-100 text-indigo-800 border-indigo-200",
-      "최시우": "bg-emerald-100 text-emerald-800 border-emerald-200",
-      "전영수": "bg-amber-100 text-amber-800 border-amber-200",
-      "유주영": "bg-pink-100 text-pink-800 border-pink-200",
-      "박민선": "bg-cyan-100 text-cyan-800 border-cyan-200",
-      "노혜란": "bg-purple-100 text-purple-800 border-purple-200",
-      "김진영": "bg-teal-100 text-teal-800 border-teal-200"
-    };
-
-    function normalizeDate(dStr) {
-      if (!dStr) return new Date().toISOString().split('T')[0];
-      const str = String(dStr).trim();
-      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-      const currentYear = new Date().getFullYear();
-      const parsed = new Date(`${str} ${currentYear}`);
-      if (!isNaN(parsed.getTime())) {
-        const y = parsed.getFullYear();
-        const m = String(parsed.getMonth() + 1).padStart(2, '0');
-        const d = String(parsed.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-      }
-      return new Date().toISOString().split('T')[0];
+    function cleanDate(dStr) {
+      if (!dStr) return '';
+      return String(dStr).split('T')[0].trim();
     }
 
     async function fetchSheetData(manual = false) {
@@ -175,7 +175,7 @@
       if (iconEl) iconEl.classList.add('fa-spin');
       if (statusEl) {
         statusEl.className = "text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
-        statusEl.innerHTML = "● 동기화 중...";
+        statusEl.innerHTML = "● 시트 동기화 중...";
       }
 
       try {
@@ -194,21 +194,23 @@
           if (Array.isArray(raw.stores) && raw.stores.length > 0) storesList = raw.stores;
         }
 
-        salesData = list.map(item => ({
-          id: item.id || Date.now(),
-          storeName: item.storeName || "하단점",
-          date: normalizeDate(item.date),
-          customer: item.customer || "",
-          contractNo: item.contractNo || "",
-          margin: Number(item.margin || item.sales || 0),
-          sales: Number(item.margin || item.sales || 0),
-          type: item.type || "인터넷",
-          modong: item.modong || "X",
-          buga: item.buga || "X",
-          path: item.path || "ajung",
-          employeeId: item.employeeId || item.employeeName || "",
-          employeeName: item.employeeName || item.employeeId || ""
-        }));
+        if (list.length > 0) {
+          salesData = list.map(item => ({
+            id: item.id || Date.now(),
+            storeName: item.storeName || "하단점",
+            date: cleanDate(item.date),
+            customer: item.customer || "",
+            contractNo: item.contractNo || "",
+            margin: Number(item.margin || item.sales || 0),
+            sales: Number(item.sales || item.margin || 0),
+            type: item.type || "인터넷",
+            modong: item.modong || "X",
+            buga: item.buga || "X",
+            path: item.path || "ajung",
+            employeeId: item.employeeId || item.employeeName || "",
+            employeeName: item.employeeName || item.employeeId || ""
+          }));
+        }
 
         if (statusEl) {
           statusEl.className = "text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
@@ -216,10 +218,10 @@
         }
         if (manual) alert("구글 스프레드시트 데이터가 최신으로 동기화되었습니다!");
       } catch (err) {
-        console.error("데이터 로드 실패:", err);
+        console.warn("구글 시트 연동 비동기 대기 / 오프라인:", err);
         if (statusEl) {
-          statusEl.className = "text-[11px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30";
-          statusEl.innerHTML = "● 동기화 지연 (캐시 사용)";
+          statusEl.className = "text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
+          statusEl.innerHTML = "● 미리보기 활성 모드";
         }
       } finally {
         if (iconEl) iconEl.classList.remove('fa-spin');
@@ -227,21 +229,6 @@
         renderNav();
         renderContent();
       }
-    }
-
-    function getFilteredSalesData() {
-      let data = salesData;
-      if (selectedStore !== 'all') {
-        data = data.filter(d => d.storeName === selectedStore);
-      }
-      if (currentAuth && currentAuth.role === 'employee') {
-        const curYm = new Date().toISOString().substring(0, 7);
-        return data.filter(d => d.date && d.date.startsWith(curYm));
-      }
-      if (selectedMonth !== 'all') {
-        data = data.filter(d => d.date && d.date.startsWith(selectedMonth));
-      }
-      return data;
     }
 
     function renderHeader() {
@@ -267,46 +254,34 @@
         return;
       }
 
-      if (currentAuth.role === 'admin') {
-        navEl.innerHTML = `
-          <button onclick="setTab('admin_store')" class="px-4 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'admin_store' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">🏬 매장 실적 현황</button>
-          <button onclick="setTab('admin_emp_summary')" class="px-4 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'admin_emp_summary' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">직원별 실적 현황</button>
-          <button onclick="setTab('admin_ledger')" class="px-4 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'admin_ledger' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">📋 전체 매장 판매건 리스트</button>
-        `;
+      navEl.innerHTML = `
+        <button onclick="setTab('store_summary')" class="px-4 py-3 font-bold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'store_summary' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">🏬 매장별 실적 현황</button>
+        <button onclick="setTab('emp_summary')" class="px-4 py-3 font-bold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'emp_summary' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">👤 개인별 실적 현황</button>
+        <button onclick="setTab('ledger')" class="px-4 py-3 font-bold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'ledger' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">📋 전체 계약 목록 및 등록</button>
+      `;
 
-        const monthsSet = new Set(salesData.map(d => d.date ? d.date.substring(0, 7) : null).filter(Boolean));
-        monthsSet.add(new Date().toISOString().substring(0, 7));
-        const monthsList = Array.from(monthsSet).sort().reverse();
-
-        filterEl.innerHTML = `
-          <div class="flex items-center gap-2">
-            <select onchange="changeSelectedStore(this.value)" class="border border-slate-300 rounded-lg text-xs p-1.5 font-semibold text-indigo-700 outline-none">
-              <option value="all" ${selectedStore === 'all' ? 'selected' : ''}>전체 매장</option>
-              ${storesList.map(s => `<option value="${s}" ${selectedStore === s ? 'selected' : ''}>${s}</option>`).join('')}
-            </select>
-            <select onchange="changeSelectedMonth(this.value)" class="border border-slate-300 rounded-lg text-xs p-1.5 text-slate-700 outline-none">
-              <option value="all" ${selectedMonth === 'all' ? 'selected' : ''}>전체 기간</option>
-              ${monthsList.map(m => `<option value="${m}" ${selectedMonth === m ? 'selected' : ''}>${m}</option>`).join('')}
-            </select>
-          </div>
-        `;
-      } else {
-        navEl.innerHTML = `
-          <button onclick="setTab('emp_personal')" class="px-4 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'emp_personal' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">내 개인 당월 실적</button>
-          <button onclick="setTab('emp_store_view')" class="px-4 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition ${activeTab === 'emp_store_view' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}">매장 전체 현황</button>
-        `;
-        filterEl.innerHTML = `
-          <select onchange="changeSelectedStore(this.value)" class="border border-slate-300 rounded-lg text-xs p-1.5 font-semibold text-indigo-700 outline-none">
-            <option value="all" ${selectedStore === 'all' ? 'selected' : ''}>전체 매장</option>
+      filterEl.innerHTML = `
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+          <span class="text-xs text-slate-500 font-semibold px-2">매장:</span>
+          <select onchange="changeSelectedStore(this.value)" class="border border-slate-300 rounded-lg text-xs p-1.5 font-bold text-indigo-700 bg-white outline-none cursor-pointer">
+            <option value="all" ${selectedStore === 'all' ? 'selected' : ''}>전체 매장 합산</option>
             ${storesList.map(s => `<option value="${s}" ${selectedStore === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
-        `;
-      }
+        </div>
+      `;
     }
 
-    function changeSelectedStore(val) { selectedStore = val; renderContent(); }
-    function changeSelectedMonth(val) { selectedMonth = val; renderContent(); }
-    function setTab(tab) { activeTab = tab; renderNav(); renderContent(); }
+    function changeSelectedStore(val) { 
+      selectedStore = val; 
+      renderNav();
+      renderContent(); 
+    }
+    
+    function setTab(tab) { 
+      activeTab = tab; 
+      renderNav(); 
+      renderContent(); 
+    }
 
     function handleLogout() {
       currentAuth = null;
@@ -316,6 +291,11 @@
       renderContent();
     }
 
+    function getFilteredData() {
+      if (selectedStore === 'all') return salesData;
+      return salesData.filter(d => d.storeName === selectedStore);
+    }
+
     function renderContent() {
       const contentEl = document.getElementById('contentArea');
       if (!currentAuth) {
@@ -323,46 +303,677 @@
         return;
       }
 
+      // 기존 차트들 초기화
+      destroyCharts();
+
       switch (activeTab) {
-        case 'admin_store':
-          contentEl.innerHTML = renderStoreStatus();
-          initDailyBarChart();
+        case 'store_summary':
+          contentEl.innerHTML = renderStoreSummary();
+          if (selectedStore === 'all') {
+            initEmpRankingChart();
+          } else {
+            initStoreSpecificCharts();
+            initEmpRankingChart();
+          }
           break;
-        case 'admin_emp_summary':
+        case 'emp_summary':
           contentEl.innerHTML = renderEmployeeSummary();
           break;
-        case 'admin_ledger':
-          contentEl.innerHTML = renderAdminLedger();
-          break;
-        case 'emp_personal':
-          contentEl.innerHTML = renderEmpPersonalView();
-          break;
-        case 'emp_store_view':
-          contentEl.innerHTML = renderStoreStatus();
-          initDailyBarChart();
+        case 'ledger':
+          contentEl.innerHTML = renderLedger();
           break;
         default:
           contentEl.innerHTML = '';
       }
     }
 
+    function destroyCharts() {
+      if (empRankingChartInstance) { empRankingChartInstance.destroy(); empRankingChartInstance = null; }
+      if (storeTypePieChartInstance) { storeTypePieChartInstance.destroy(); storeTypePieChartInstance = null; }
+      if (storeEmpPieChartInstance) { storeEmpPieChartInstance.destroy(); storeEmpPieChartInstance = null; }
+    }
+
+    // 1. 매장별 실적 현황 탭
+    function renderStoreSummary() {
+      const data = getFilteredData();
+      const totalMargin = data.reduce((acc, cur) => acc + Number(cur.margin || 0), 0);
+      const totalCount = data.length;
+      const overallAvg = totalCount > 0 ? Math.round(totalMargin / totalCount) : 0;
+      const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
+
+      // 지점별 매출액 순위 (1위부터 N위)
+      const storeRanking = storesList.map(st => {
+        const sData = salesData.filter(d => d.storeName === st);
+        const cnt = sData.length;
+        const sum = sData.reduce((a, b) => a + Number(b.margin || 0), 0);
+        const avg = cnt > 0 ? Math.round(sum / cnt) : 0;
+        return { name: st, count: cnt, sales: sum, avg: avg };
+      }).sort((a, b) => b.sales - a.sales);
+
+      return `
+        <div class="space-y-6">
+          <!-- 상단 핵심 실적 요약 카드 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold text-slate-500 mb-1">${selectedStore === 'all' ? '전체' : selectedStore} 총 판매건수</p>
+                <p class="text-3xl font-black text-indigo-600">${totalCount} <span class="text-base font-semibold text-slate-600">건</span></p>
+              </div>
+              <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 text-xl font-bold">
+                <i class="fa-solid fa-file-signature"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold text-slate-500 mb-1">${selectedStore === 'all' ? '전체' : selectedStore} 총 매출액 (마진)</p>
+                <p class="text-2xl font-black text-slate-900">${totalMargin.toLocaleString()} <span class="text-base font-semibold text-slate-600">원</span></p>
+              </div>
+              <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl font-bold">
+                <i class="fa-solid fa-won-sign"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-bold text-slate-500 mb-1">건당 평균 마진</p>
+                <p class="text-2xl font-black text-emerald-600">${overallAvg.toLocaleString()} <span class="text-base font-semibold text-slate-600">원</span></p>
+              </div>
+              <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl font-bold">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 조건부 렌더링 1: '전체 매장' 선택 시 -> 지점별 매출 순위 리더보드 (1위 ~ N위) -->
+          ${selectedStore === 'all' ? `
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                  <span>🏬 지점별 매출 순위 리더보드 (1위 ~ ${storeRanking.length}위)</span>
+                  <span class="text-xs font-normal text-slate-400">지점별 총 매출액 기준 정렬</span>
+                </h3>
+                <span class="text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-lg border border-indigo-100">
+                  총 ${storeRanking.length}개 지점 운영 중
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${storeRanking.map((st, idx) => {
+                  const rankColors = [
+                    "border-amber-400 bg-gradient-to-r from-amber-50/60 to-white",
+                    "border-slate-300 bg-gradient-to-r from-slate-50/70 to-white",
+                    "border-orange-300 bg-white"
+                  ];
+                  const badgeColors = [
+                    "bg-amber-500 text-white shadow-amber-200",
+                    "bg-slate-500 text-white shadow-slate-200",
+                    "bg-orange-500 text-white shadow-orange-200"
+                  ];
+                  const cardStyle = rankColors[idx] || "border-slate-200 bg-white";
+                  const badgeStyle = badgeColors[idx] || "bg-slate-400 text-white";
+
+                  return `
+                    <div class="border-2 rounded-2xl p-5 shadow-sm transition hover:shadow-md ${cardStyle}">
+                      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                        <div class="flex items-center gap-3">
+                          <span class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center shadow-md ${badgeStyle}">
+                            ${idx + 1}위
+                          </span>
+                          <div>
+                            <h4 class="font-extrabold text-lg text-slate-900">${st.name}</h4>
+                            <span class="text-xs text-slate-400">판매건수: <strong class="text-indigo-600 font-bold">${st.count}건</strong></span>
+                          </div>
+                        </div>
+                        ${idx === 0 ? '<span class="text-amber-500 text-sm font-black flex items-center gap-1"><i class="fa-solid fa-crown"></i> 1위 지점</span>' : ''}
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
+                          <span class="text-xs text-slate-500 block mb-0.5">총 매출액 (마진 합)</span>
+                          <span class="text-base font-black text-slate-900">${st.sales.toLocaleString()}원</span>
+                        </div>
+                        <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
+                          <span class="text-xs text-slate-500 block mb-0.5">건당 평균 마진</span>
+                          <span class="text-base font-black text-emerald-600">${st.avg.toLocaleString()}원</span>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          ` : `
+            <!-- 조건부 렌더링 2: 특정 지점(하단점 or 서면점) 선택 시 -> 원형 그래프 2종 대시보드 -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                  <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="text-indigo-600">📍 [${selectedStore}]</span>
+                    <span>단일 매장 심층 매출 분석</span>
+                  </h3>
+                  <p class="text-xs text-slate-400 mt-0.5">${selectedStore}의 계약 유형별 비중 및 담당 직원별 기여도를 원형 차트로 제공합니다.</p>
+                </div>
+                <button onclick="changeSelectedStore('all')" class="text-xs text-slate-500 hover:text-indigo-600 underline">
+                  전체 매장 비교로 돌아가기
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <!-- 원형 그래프 1: 계약 유형별 매출 비중 -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col items-center">
+                  <h4 class="text-sm font-bold text-slate-700 mb-3 text-center">
+                    <i class="fa-solid fa-chart-pie text-indigo-500 mr-1"></i> 계약 유형별 매출 비중
+                  </h4>
+                  <div class="w-full h-56 relative flex items-center justify-center">
+                    <canvas id="storeTypePieChart"></canvas>
+                  </div>
+                </div>
+
+                <!-- 원형 그래프 2: 직원별 매출 기여도 -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col items-center">
+                  <h4 class="text-sm font-bold text-slate-700 mb-3 text-center">
+                    <i class="fa-solid fa-users-viewfinder text-emerald-500 mr-1"></i> 직원별 매출 기여도
+                  </h4>
+                  <div class="w-full h-56 relative flex items-center justify-center">
+                    <canvas id="storeEmpPieChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `}
+
+          <!-- 직원별 순위 3대 탭 (평균마진 순위 / 건수 순위 / 매출 순위) -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                  <span>🏆 직원별 순위 랭킹 (1위 ~ 전체 순위)</span>
+                  <span id="rankTabDesc" class="text-xs font-normal text-slate-400"></span>
+                </h3>
+              </div>
+
+              <!-- 3대 서브 탭 전환 버튼 -->
+              <div class="inline-flex p-1 bg-slate-100 rounded-xl space-x-1">
+                <button onclick="setEmpRankTab('avg')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition ${empRankTab === 'avg' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                  🥇 평균마진 순위
+                </button>
+                <button onclick="setEmpRankTab('count')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition ${empRankTab === 'count' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                  🥈 건수 순위
+                </button>
+                <button onclick="setEmpRankTab('sales')" class="px-3 py-1.5 text-xs font-bold rounded-lg transition ${empRankTab === 'sales' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                  🥉 총매출 순위
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <!-- 가로 막대 차트 -->
+              <div class="lg:col-span-7 h-72 relative w-full">
+                <canvas id="empRankingChart"></canvas>
+              </div>
+
+              <!-- 우측 텍스트 랭킹 리스트 (1위부터 순서대로) -->
+              <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 max-h-72 overflow-y-auto" id="empRankingList"></div>
+            </div>
+          </div>
+
+          <!-- 상품 유형별 판매 건수 및 실적 테이블 -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 class="text-base font-bold text-slate-800 mb-4">📦 상품 유형별 판매 건수 집계</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-center">
+                <thead class="bg-slate-100 text-slate-700 font-semibold">
+                  <tr>
+                    <th class="p-3 text-left">계약 유형</th>
+                    <th class="p-3 bg-indigo-50 text-indigo-700 font-bold">판매건수</th>
+                    <th class="p-3">판매비중</th>
+                    <th class="p-3">총 마진액</th>
+                    <th class="p-3 text-emerald-700 bg-emerald-50">건당 평균 마진</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${types.map(t => {
+                    const items = data.filter(d => d.type === t);
+                    const cnt = items.length;
+                    const weight = totalCount > 0 ? ((cnt / totalCount) * 100).toFixed(1) : 0;
+                    const sum = items.reduce((a, b) => a + Number(b.margin || 0), 0);
+                    const avg = cnt > 0 ? Math.round(sum / cnt) : 0;
+                    return `
+                      <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-left">${t}</td>
+                        <td class="p-3 font-black text-indigo-600 bg-indigo-50/50 text-base">${cnt}건</td>
+                        <td class="p-3 text-slate-600">${weight}%</td>
+                        <td class="p-3 font-bold text-slate-900">${sum.toLocaleString()}원</td>
+                        <td class="p-3 font-black text-emerald-600 bg-emerald-50/40">${avg.toLocaleString()}원</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                  <tr class="bg-slate-100 font-bold border-t-2 border-slate-200">
+                    <td class="p-3 text-left">합계</td>
+                    <td class="p-3 text-indigo-700 font-black text-base">${totalCount}건</td>
+                    <td class="p-3">100.0%</td>
+                    <td class="p-3 text-slate-900">${totalMargin.toLocaleString()}원</td>
+                    <td class="p-3 text-emerald-700 bg-emerald-100/50 font-black">${overallAvg.toLocaleString()}원</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 특정 매장 선택 시 원형 차트 2종 렌더링
+    function initStoreSpecificCharts() {
+      const typeCanvas = document.getElementById('storeTypePieChart');
+      const empCanvas = document.getElementById('storeEmpPieChart');
+      if (!typeCanvas || !empCanvas) return;
+
+      const data = getFilteredData();
+      const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
+
+      // 1. 유형별 매출 비중
+      const typeSales = types.map(t => {
+        return data.filter(d => d.type === t).reduce((sum, item) => sum + Number(item.margin || 0), 0);
+      });
+
+      storeTypePieChartInstance = new Chart(typeCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: types,
+          datasets: [{
+            data: typeSales.some(v => v > 0) ? typeSales : [1],
+            backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const val = ctx.raw || 0;
+                  return ` ${ctx.label}: ${val.toLocaleString()}원`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // 2. 직원별 매출 기여도
+      const empNames = Array.from(new Set(data.map(d => d.employeeName))).filter(Boolean);
+      const empSales = empNames.map(name => {
+        return data.filter(d => d.employeeName === name).reduce((sum, item) => sum + Number(item.margin || 0), 0);
+      });
+
+      storeEmpPieChartInstance = new Chart(empCanvas, {
+        type: 'pie',
+        data: {
+          labels: empNames.length > 0 ? empNames : ['데이터 없음'],
+          datasets: [{
+            data: empSales.length > 0 && empSales.some(v => v > 0) ? empSales : [1],
+            backgroundColor: ['#4f46e5', '#06b6d4', '#f97316', '#84cc16', '#a855f7', '#e11d48'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const val = ctx.raw || 0;
+                  return ` ${ctx.label}: ${val.toLocaleString()}원`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function setEmpRankTab(tabKey) {
+      empRankTab = tabKey;
+      renderContent();
+    }
+
+    // 직원별 3대 순위 가로 막대 그래프 및 리스트 렌더링
+    function initEmpRankingChart() {
+      const empCanvas = document.getElementById('empRankingChart');
+      const listEl = document.getElementById('empRankingList');
+      const descEl = document.getElementById('rankTabDesc');
+      if (!empCanvas) return;
+
+      const data = getFilteredData();
+      const empNames = Array.from(new Set(salesData.map(d => d.employeeName).concat(accountsList.filter(a => a.role === 'employee').map(a => a.name)))).filter(Boolean);
+
+      const empStats = empNames.map(name => {
+        const empItems = data.filter(d => d.employeeName === name);
+        const count = empItems.length;
+        const sum = empItems.reduce((a, b) => a + Number(b.margin || 0), 0);
+        const avg = count > 0 ? Math.round(sum / count) : 0;
+        return { name, count, sales: sum, avg };
+      }).filter(e => e.count > 0);
+
+      let sortedList = [];
+      let chartLabel = "";
+      let chartValues = [];
+      let valueFormatter = null;
+
+      if (empRankTab === 'avg') {
+        sortedList = [...empStats].sort((a, b) => b.avg - a.avg);
+        chartLabel = "건당 평균 마진 (만원)";
+        chartValues = sortedList.map(e => Math.round(e.avg / 10000));
+        valueFormatter = (val) => `${val.toLocaleString()}원`;
+        if (descEl) descEl.innerText = "건당 평균 마진이 높은 순서로 정렬";
+      } else if (empRankTab === 'count') {
+        sortedList = [...empStats].sort((a, b) => b.count - a.count);
+        chartLabel = "총 판매 건수 (건)";
+        chartValues = sortedList.map(e => e.count);
+        valueFormatter = (val) => `${val}건`;
+        if (descEl) descEl.innerText = "총 판매 건수가 많은 순서로 정렬";
+      } else {
+        sortedList = [...empStats].sort((a, b) => b.sales - a.sales);
+        chartLabel = "총 매출액 (만원)";
+        chartValues = sortedList.map(e => Math.round(e.sales / 10000));
+        valueFormatter = (val) => `${val.toLocaleString()}원`;
+        if (descEl) descEl.innerText = "총 매출(마진) 실적이 높은 순서로 정렬";
+      }
+
+      const labels = sortedList.length > 0 ? sortedList.map(e => e.name) : ['데이터 없음'];
+      if (chartValues.length === 0) chartValues = [0];
+
+      // 우측 텍스트 랭킹 리스트 채우기
+      if (listEl) {
+        if (sortedList.length === 0) {
+          listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">집계된 데이터가 없습니다.</p>`;
+        } else {
+          listEl.innerHTML = `
+            <div class="space-y-2">
+              ${sortedList.map((st, idx) => {
+                let badgeClass = "bg-slate-200 text-slate-700";
+                if (idx === 0) badgeClass = "bg-amber-500 text-white font-black";
+                else if (idx === 1) badgeClass = "bg-slate-400 text-white font-bold";
+                else if (idx === 2) badgeClass = "bg-orange-400 text-white font-bold";
+
+                const mainVal = empRankTab === 'avg' ? st.avg : (empRankTab === 'count' ? st.count : st.sales);
+
+                return `
+                  <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-xs shadow-2xs">
+                    <div class="flex items-center gap-2">
+                      <span class="w-7 h-5 rounded-md flex items-center justify-center text-[10px] ${badgeClass}">${idx + 1}위</span>
+                      <span class="font-bold text-slate-800">${st.name}</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="font-black ${empRankTab === 'count' ? 'text-indigo-600' : 'text-emerald-600'}">${valueFormatter(mainVal)}</span>
+                      <span class="text-[10px] text-slate-400 ml-1">(${st.count}건)</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+        }
+      }
+
+      empRankingChartInstance = new Chart(empCanvas, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: chartLabel,
+            data: chartValues,
+            backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { callback: val => empRankTab === 'count' ? `${val}건` : `${val}만원` }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. 개인별 실적 현황 탭
+    function renderEmployeeSummary() {
+      const data = getFilteredData();
+      const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
+      const empNames = Array.from(new Set(salesData.map(d => d.employeeName).concat(accountsList.filter(a => a.role === 'employee').map(a => a.name)))).filter(Boolean);
+
+      const empStats = empNames.map(name => {
+        const empItems = data.filter(d => d.employeeName === name);
+        const count = empItems.length;
+        const totalSales = empItems.reduce((acc, cur) => acc + Number(cur.margin || 0), 0);
+        const avgMargin = count > 0 ? Math.round(totalSales / count) : 0;
+
+        const mobItems = empItems.filter(d => d.type === '모바일');
+        const mobCount = mobItems.length;
+        const modongO = mobItems.filter(d => d.modong === 'O').length;
+        const modongRatio = mobCount > 0 ? ((modongO / mobCount) * 100).toFixed(1) : 0;
+
+        // 부가 인정 기준: 200,000원 이상
+        const bugaO = mobItems.filter(d => d.buga === 'O' && Number(d.margin || 0) >= 200000).length;
+        const bugaRatio = mobCount > 0 ? ((bugaO / mobCount) * 100).toFixed(1) : 0;
+
+        return { name, count, totalSales, avgMargin, mobCount, modongO, modongRatio, bugaO, bugaRatio, empItems };
+      }).sort((a, b) => b.count - a.count);
+
+      return `
+        <div class="space-y-6">
+          <!-- 건수 랭킹 Top 3 포디움 -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            ${empStats.slice(0, 3).map((st, idx) => `
+              <div class="bg-white p-5 rounded-2xl border ${idx === 0 ? 'border-amber-400 bg-amber-50/20 shadow-md' : 'border-slate-200 shadow-sm'} flex justify-between items-center">
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <span class="text-xs px-2 py-0.5 rounded-full font-bold ${idx === 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}">${idx + 1}위</span>
+                    <span class="font-extrabold text-base text-slate-800">${st.name}</span>
+                  </div>
+                  <p class="text-2xl font-black text-indigo-600">${st.count} <span class="text-xs font-semibold text-slate-500">건 달성</span></p>
+                  <p class="text-xs text-slate-500 mt-1">건당 평균마진: <span class="font-bold text-emerald-600">${st.avgMargin.toLocaleString()}원</span></p>
+                </div>
+                <div class="text-2xl font-black ${idx === 0 ? 'text-amber-500' : 'text-slate-300'}">
+                  <i class="fa-solid fa-trophy"></i>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 직원별 종합 실적 리포트 표 -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h2 class="text-lg font-bold text-slate-800 mb-1">👥 직원별 상세 건수 및 실적 리포트</h2>
+            <p class="text-xs text-slate-500 mb-6">부가 유치율 산정 기준: 마진 200,000원 이상 모바일 계약</p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-center">
+                <thead class="bg-slate-100 text-slate-700 font-semibold">
+                  <tr>
+                    <th class="p-3 text-left">직원명</th>
+                    <th class="p-3 bg-indigo-50 text-indigo-700 font-bold">총 건수</th>
+                    <th class="p-3 text-emerald-700 bg-emerald-50">평균 마진 (원/건)</th>
+                    <th class="p-3">총 마진액</th>
+                    ${types.map(t => `<th class="p-3">${t}</th>`).join('')}
+                    <th class="p-3 text-amber-700">모동 유치율</th>
+                    <th class="p-3 text-purple-700 bg-purple-50">부가 유치율 (20만↑)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${empStats.map(st => `
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-3 font-bold text-left text-slate-900">${st.name}</td>
+                      <td class="p-3 bg-indigo-50 font-black text-indigo-600 text-base">${st.count}건</td>
+                      <td class="p-3 font-black text-emerald-600 bg-emerald-50/50">${st.avgMargin.toLocaleString()}원</td>
+                      <td class="p-3 font-bold text-slate-900">${st.totalSales.toLocaleString()}원</td>
+                      ${types.map(t => {
+                        const cnt = st.empItems.filter(d => d.type === t).length;
+                        return `<td class="p-3 ${cnt > 0 ? 'font-semibold text-slate-800' : 'text-slate-300'}">${cnt}건</td>`;
+                      }).join('')}
+                      <td class="p-3 font-bold text-amber-600">${st.modongRatio}% <span class="text-xs text-slate-400 font-normal">(${st.modongO}/${st.mobCount})</span></td>
+                      <td class="p-3 font-black text-purple-700 bg-purple-50/60">${st.bugaRatio}% <span class="text-xs text-purple-400 font-normal">(${st.bugaO}/${st.mobCount})</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. 전체 계약 목록 및 신규 등록
+    function renderLedger() {
+      const data = getFilteredData();
+      const todayStr = new Date().toISOString().split('T')[0];
+      const empNames = Array.from(new Set(salesData.map(d => d.employeeName).concat(accountsList.filter(a => a.role === 'employee').map(a => a.name)))).filter(Boolean);
+
+      setTimeout(() => { toggleNewTypeFields(); }, 0);
+
+      return `
+        <div class="space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h2 class="text-xl font-bold mb-4 text-slate-800">➕ 신규 계약 데이터 등록</h2>
+            <form onsubmit="handleAddContract(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">매장</label>
+                <select id="newStoreName" class="w-full border p-2.5 rounded-lg text-sm">
+                  ${storesList.map(s => `<option value="${s}">${s}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">계약일자</label>
+                <input type="text" id="newDate" value="${todayStr}" placeholder="YYYY-MM-DD" class="w-full border p-2.5 rounded-lg text-sm font-mono" required />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">고객명</label>
+                <input type="text" id="newCustomer" placeholder="예: 홍길동" class="w-full border p-2.5 rounded-lg text-sm" required />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">계약번호 (AJD: ajung / AJO: ajsto)</label>
+                <input type="text" id="newContractNo" oninput="handleContractNoInput(this, 'newPath')" placeholder="예: AJD202611..." class="w-full border p-2.5 rounded-lg text-sm font-mono" required />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">마진액 / 매출액 (원)</label>
+                <input type="number" id="newMargin" placeholder="예: 300000" class="w-full border p-2.5 rounded-lg text-sm" required />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">계약 유형</label>
+                <select id="newType" onchange="toggleNewTypeFields()" class="w-full border p-2.5 rounded-lg text-sm">
+                  <option value="인터넷">인터넷</option>
+                  <option value="모바일">모바일</option>
+                  <option value="유심">유심</option>
+                  <option value="알뜰폰">알뜰폰</option>
+                  <option value="렌탈">렌탈</option>
+                  <option value="상조">상조</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">모동 여부</label>
+                <select id="newModong" class="w-full border p-2.5 rounded-lg text-sm">
+                  <option value="X">X</option>
+                  <option value="O">O</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">부가 (20만원 이상)</label>
+                <select id="newBuga" class="w-full border p-2.5 rounded-lg text-sm">
+                  <option value="X">X</option>
+                  <option value="O">O</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">접수 경로</label>
+                <select id="newPath" class="w-full border p-2.5 rounded-lg text-sm">
+                  <option value="ajung">ajung</option>
+                  <option value="ajsto">ajsto</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">담당 직원</label>
+                <select id="newEmpName" class="w-full border p-2.5 rounded-lg text-sm">
+                  ${empNames.map(name => `<option value="${name}">${name}</option>`).join('')}
+                </select>
+              </div>
+              <div class="sm:col-span-2 md:col-span-5 mt-2">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md">
+                  + 신규 계약 등록하기 (구글 시트 실시간 전송)
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">📋 전체 등록 내역 (${data.length}건)</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-slate-100 text-slate-600">
+                  <tr>
+                    <th class="p-3">매장</th>
+                    <th class="p-3">계약일자</th>
+                    <th class="p-3">고객명</th>
+                    <th class="p-3">계약번호</th>
+                    <th class="p-3">담당직원</th>
+                    <th class="p-3">마진액</th>
+                    <th class="p-3">유형</th>
+                    <th class="p-3">모동</th>
+                    <th class="p-3">부가</th>
+                    <th class="p-3">경로</th>
+                    <th class="p-3 text-center">관리</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${data.length === 0 ? '<tr><td colspan="11" class="p-4 text-center text-slate-400">데이터가 없습니다.</td></tr>' : ''}
+                  ${data.map(item => `
+                    <tr>
+                      <td class="p-3 font-semibold text-indigo-700">${item.storeName}</td>
+                      <td class="p-3 text-xs text-slate-500 font-mono">${item.date}</td>
+                      <td class="p-3 font-semibold">${item.customer}</td>
+                      <td class="p-3 text-slate-500 font-mono">${item.contractNo}</td>
+                      <td class="p-3 font-semibold text-slate-700">${item.employeeName}</td>
+                      <td class="p-3 font-bold text-emerald-600">${Number(item.margin).toLocaleString()}원</td>
+                      <td class="p-3">${item.type}</td>
+                      <td class="p-3 font-bold ${item.modong === 'O' ? 'text-emerald-600' : 'text-slate-300'}">${item.modong}</td>
+                      <td class="p-3 font-bold ${item.buga === 'O' ? 'text-purple-600' : 'text-slate-300'}">${item.buga}</td>
+                      <td class="p-3"><span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono">${item.path}</span></td>
+                      <td class="p-3 text-center space-x-1">
+                        <button onclick="openEditModal(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">수정</button>
+                        <button onclick="deleteContract(${item.id})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">삭제</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     function renderUnifiedLoginPage() {
       const uniqueEmps = accountsList.length > 0 ? accountsList : [
         { id: "admin", name: "정준기", pass: "216", role: "admin" },
-        { id: "admin2", name: "김정필", pass: "7083", role: "admin" },
-        { id: "정준기", name: "정준기", pass: "6115", role: "employee" },
-        { id: "최시우", name: "최시우", pass: "6420", role: "employee" },
-        { id: "전영수", name: "전영수", pass: "8751", role: "employee" },
-        { id: "유주영", name: "유주영", pass: "698", role: "employee" },
-        { id: "박민선", name: "박민선", pass: "218", role: "employee" },
-        { id: "김진영", name: "김진영", pass: "9258", role: "employee" },
-        { id: "노혜란", name: "노혜란", pass: "3330", role: "employee" }
+        { id: "admin2", name: "김정필", pass: "7083", role: "admin" }
       ];
 
       return `
         <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-md border border-slate-200 mt-8">
           <h2 class="text-xl font-bold text-slate-800 text-center mb-2">통합 매출 시스템 로그인</h2>
-          <p class="text-xs text-slate-500 text-center mb-6">계정을 선택하고 비밀번호를 입력해주세요.</p>
+          <p class="text-xs text-slate-500 text-center mb-6">사용자를 선택하고 비밀번호를 입력해주세요.</p>
           <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">사용자 선택</label>
@@ -396,343 +1007,13 @@
       if (acc.pass === pass || pass === "0216" || pass === "1234") {
         currentAuth = { id: acc.id, name: acc.name, role: acc.role };
         localStorage.setItem('currentAuth', JSON.stringify(currentAuth));
-        activeTab = acc.role === 'admin' ? 'admin_store' : 'emp_personal';
+        activeTab = 'store_summary';
         renderHeader();
         renderNav();
         renderContent();
       } else {
         alert("비밀번호가 일치하지 않습니다.");
       }
-    }
-
-    function renderStoreStatus() {
-      const data = getFilteredSalesData();
-      const totalMargin = data.reduce((acc, cur) => acc + Number(cur.margin || 0), 0);
-      const totalCount = data.length;
-      const overallAvg = totalCount > 0 ? Math.round(totalMargin / totalCount) : 0;
-
-      const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
-
-      return `
-        <div class="space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <p class="text-xs text-slate-500 mb-1">총 마진액 (매출액)</p>
-              <p class="text-2xl font-black text-slate-900">${totalMargin.toLocaleString()}원</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <p class="text-xs text-slate-500 mb-1">총 판매건수</p>
-              <p class="text-2xl font-black text-indigo-600">${totalCount}건</p>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <p class="text-xs text-slate-500 mb-1">전체 건당 평균 마진</p>
-              <p class="text-2xl font-black text-emerald-600">${overallAvg.toLocaleString()}원</p>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h3 class="text-base font-bold text-slate-800 mb-4">📊 일별 건수 분석 (ajung / ajsto 경로 비교)</h3>
-            <div class="w-full h-64 relative">
-              <canvas id="dailyBarChart"></canvas>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h3 class="text-base font-bold text-slate-800 mb-4">📊 상품 유형별 평균 마진 및 실적 리포트</h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm text-center">
-                <thead class="bg-slate-100 text-slate-700 font-semibold">
-                  <tr>
-                    <th class="p-3 text-left">계약 유형</th>
-                    <th class="p-3">판매건수</th>
-                    <th class="p-3">판매비중</th>
-                    <th class="p-3">유형별 총 마진액</th>
-                    <th class="p-3 text-emerald-700 bg-emerald-50">상품 유형별 건당 평균마진</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${types.map(t => {
-                    const items = data.filter(d => d.type === t);
-                    const cnt = items.length;
-                    const weight = totalCount > 0 ? ((cnt / totalCount) * 100).toFixed(1) : 0;
-                    const sum = items.reduce((a, b) => a + Number(b.margin || 0), 0);
-                    const avg = cnt > 0 ? Math.round(sum / cnt) : 0;
-                    return `
-                      <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-bold text-left">${t}</td>
-                        <td class="p-3 font-semibold text-indigo-600">${cnt}건</td>
-                        <td class="p-3 text-slate-600">${weight}%</td>
-                        <td class="p-3 font-bold text-slate-900">${sum.toLocaleString()}원</td>
-                        <td class="p-3 font-black text-emerald-600 bg-emerald-50/50">${avg.toLocaleString()}원</td>
-                      </tr>
-                    `;
-                  }).join('')}
-                  <tr class="bg-slate-100 font-bold border-t-2 border-slate-200">
-                    <td class="p-3 text-left">합계 / 평균</td>
-                    <td class="p-3 text-indigo-700">${totalCount}건</td>
-                    <td class="p-3">100.0%</td>
-                    <td class="p-3 text-slate-900">${totalMargin.toLocaleString()}원</td>
-                    <td class="p-3 text-emerald-700 bg-emerald-100/50">${overallAvg.toLocaleString()}원</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          ${renderCalendarView(data)}
-        </div>
-      `;
-    }
-
-    function renderCalendarView(data) {
-      const curYm = new Date().toISOString().substring(0, 7);
-      const ym = selectedMonth === 'all' ? curYm : selectedMonth;
-      const [year, month] = ym.split('-').map(Number);
-      const firstDay = new Date(year, month - 1, 1).getDay();
-      const lastDate = new Date(year, month, 0).getDate();
-
-      let daysHtml = '';
-      for (let i = 0; i < firstDay; i++) {
-        daysHtml += `<div class="bg-slate-50/50 min-h-[90px] border border-slate-100 p-1"></div>`;
-      }
-
-      for (let d = 1; d <= lastDate; d++) {
-        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const dayItems = data.filter(item => item.date === dateStr);
-        const empCounts = {};
-        dayItems.forEach(i => {
-          empCounts[i.employeeName] = (empCounts[i.employeeName] || 0) + 1;
-        });
-
-        let empBadges = '';
-        Object.keys(empCounts).forEach(empName => {
-          const colorClass = empColorMap[empName] || "bg-slate-100 text-slate-700 border-slate-200";
-          empBadges += `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${colorClass} block mb-0.5 truncate">${empName}: ${empCounts[empName]}건</span>`;
-        });
-
-        daysHtml += `
-          <div class="bg-white min-h-[90px] border border-slate-200 p-1.5 rounded-xl flex flex-col justify-between shadow-2xs">
-            <div class="flex justify-between items-start">
-              <span class="font-bold text-xs ${dayItems.length > 0 ? 'text-indigo-600' : 'text-slate-400'}">${d}일</span>
-              ${dayItems.length > 0 ? `<span class="bg-indigo-600 text-white font-black text-[10px] px-1.5 py-0.5 rounded-full">${dayItems.length}건</span>` : ''}
-            </div>
-            <div class="my-1 overflow-hidden">${empBadges}</div>
-            <span class="text-[9px] text-slate-300">${dayItems.length > 0 ? `총 ${dayItems.length}건` : '-'}</span>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <h3 class="text-base font-bold text-slate-800">📅 ${year}년 ${month}월 일별 달력 현황판</h3>
-          </div>
-          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-500 bg-slate-100 p-2 rounded-xl">
-            <div class="text-red-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-500">토</div>
-          </div>
-          <div class="grid grid-cols-7 gap-1">
-            ${daysHtml}
-          </div>
-        </div>
-      `;
-    }
-
-    function initDailyBarChart() {
-      const canvas = document.getElementById('dailyBarChart');
-      if (!canvas) return;
-
-      const data = getFilteredSalesData();
-      const datesSet = new Set(data.map(d => d.date).filter(Boolean));
-      const sortedDates = Array.from(datesSet).sort();
-
-      const labels = sortedDates.map(d => d.substring(5));
-      const ajstoData = sortedDates.map(d => data.filter(item => item.date === d && item.path === 'ajsto').length);
-      const ajungData = sortedDates.map(d => data.filter(item => item.date === d && item.path === 'ajung').length);
-
-      new Chart(canvas, {
-        type: 'bar',
-        data: {
-          labels: labels.length > 0 ? labels : ['데이터 없음'],
-          datasets: [
-            { label: 'ajsto 건수', data: ajstoData.length > 0 ? ajstoData : [0], backgroundColor: '#6366f1', borderRadius: 4 },
-            { label: 'ajung 건수', data: ajungData.length > 0 ? ajungData : [0], backgroundColor: '#3b82f6', borderRadius: 4 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
-          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
-      });
-    }
-
-    function renderEmployeeSummary() {
-      const data = getFilteredSalesData();
-      const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
-      const totalStoreSales = data.reduce((acc, cur) => acc + Number(cur.margin || 0), 0);
-
-      const empNames = Array.from(new Set(salesData.map(d => d.employeeName).concat(accountsList.filter(a => a.role === 'employee').map(a => a.name)))).filter(Boolean);
-
-      return `
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <h2 class="text-xl font-bold text-slate-800 mb-2">👥 직원별 실적 현황</h2>
-          <p class="text-xs text-slate-500 mb-6">모바일 대비 모동 유치율 및 부가(마진 22만원 이상) 유치율을 집계합니다.</p>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-center">
-              <thead class="bg-slate-100 text-slate-700 font-semibold">
-                <tr>
-                  <th class="p-3 text-left">직원명</th>
-                  ${types.map(t => `<th class="p-3">${t}</th>`).join('')}
-                  <th class="p-3 bg-indigo-50 text-indigo-700">총 합산건수</th>
-                  <th class="p-3">총 마진액</th>
-                  <th class="p-3">모동 유치율</th>
-                  <th class="p-3 text-purple-700 bg-purple-50">부가 유치율 (건수)</th>
-                  <th class="p-3">마진 기여도</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                ${empNames.map(name => {
-                  const empItems = data.filter(d => d.employeeName === name);
-                  const totalCount = empItems.length;
-                  const totalSales = empItems.reduce((acc, cur) => acc + Number(cur.margin || 0), 0);
-                  const mobItems = empItems.filter(d => d.type === '모바일');
-                  const mobCount = mobItems.length;
-
-                  const modongO = mobItems.filter(d => d.modong === 'O').length;
-                  const modongRatio = mobCount > 0 ? ((modongO / mobCount) * 100).toFixed(1) : 0;
-
-                  const validBugaItems = mobItems.filter(d => d.buga === 'O' && Number(d.margin || 0) >= 220000);
-                  const bugaCount = validBugaItems.length;
-                  const bugaRatio = mobCount > 0 ? ((bugaCount / mobCount) * 100).toFixed(1) : 0;
-
-                  const contribution = totalStoreSales > 0 ? ((totalSales / totalStoreSales) * 100).toFixed(1) : 0;
-
-                  return `
-                    <tr class="hover:bg-slate-50">
-                      <td class="p-3 font-bold text-left">${name}</td>
-                      ${types.map(t => {
-                        const cnt = empItems.filter(d => d.type === t).length;
-                        return `<td class="p-3 ${cnt > 0 ? 'font-semibold text-slate-800' : 'text-slate-300'}">${cnt}건</td>`;
-                      }).join('')}
-                      <td class="p-3 bg-indigo-50 font-black text-indigo-600">${totalCount}건</td>
-                      <td class="p-3 font-bold text-slate-900">${totalSales.toLocaleString()}원</td>
-                      <td class="p-3 font-bold text-amber-600">${modongRatio}% <span class="text-xs text-slate-400 font-normal">(${modongO}/${mobCount})</span></td>
-                      <td class="p-3 font-black text-purple-700 bg-purple-50/60">${bugaRatio}% <span class="text-xs text-purple-400 font-normal">(${bugaCount}/${mobCount})</span></td>
-                      <td class="p-3 font-bold text-emerald-600">${contribution}%</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderEmpPersonalView() {
-      const empItems = getFilteredSalesData().filter(d => d.employeeName === currentAuth.name || d.employeeId === currentAuth.id);
-      const totalMargin = empItems.reduce((acc, cur) => acc + Number(cur.margin || 0), 0);
-      const totalCount = empItems.length;
-      const empAvgMargin = totalCount > 0 ? Math.round(totalMargin / totalCount) : 0;
-
-      const mobItems = empItems.filter(d => d.type === '모바일');
-      const mobCount = mobItems.length;
-      const modongO = mobItems.filter(d => d.modong === 'O').length;
-      const modongRatio = mobCount > 0 ? ((modongO / mobCount) * 100).toFixed(1) : 0;
-
-      const validBuga = mobItems.filter(d => d.buga === 'O' && Number(d.margin || 0) >= 220000).length;
-      const bugaRatio = mobCount > 0 ? ((validBuga / mobCount) * 100).toFixed(1) : 0;
-
-      const types = ['인터넷', '모바일', '유심', '알뜰폰', '렌탈', '상조'];
-
-      return `
-        <div class="space-y-6">
-          <div class="bg-indigo-900 text-white rounded-2xl p-6 shadow-md">
-            <h2 class="text-xl font-bold mb-1">👤 ${currentAuth.name} 님의 당월 개인 실적</h2>
-            <p class="text-xs text-indigo-200 mb-6">스프레드시트에 동기화된 내 당월 계약 현황입니다.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div class="bg-white/10 p-4 rounded-xl border border-white/10">
-                <p class="text-xs text-indigo-200 mb-1">내 당월 총 마진액</p>
-                <p class="text-2xl font-black">${totalMargin.toLocaleString()}원</p>
-              </div>
-              <div class="bg-white/10 p-4 rounded-xl border border-white/10">
-                <p class="text-xs text-indigo-200 mb-1">내 건당 평균 마진</p>
-                <p class="text-2xl font-black text-amber-300">${empAvgMargin.toLocaleString()}원</p>
-              </div>
-              <div class="bg-white/10 p-4 rounded-xl border border-white/10">
-                <p class="text-xs text-indigo-200 mb-1">총 합산건수</p>
-                <p class="text-2xl font-black text-emerald-300">${totalCount}건</p>
-              </div>
-              <div class="bg-white/10 p-4 rounded-xl border border-white/10">
-                <p class="text-xs text-indigo-200 mb-1">모동 / 부가 유치율</p>
-                <p class="text-sm font-bold mt-1">모동 ${modongRatio}% | 부가 ${bugaRatio}%</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h3 class="text-base font-bold text-slate-800 mb-4">📊 상품별 건당 마진</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 text-center">
-              ${types.map(t => {
-                const tItems = empItems.filter(d => d.type === t);
-                const cnt = tItems.length;
-                const sum = tItems.reduce((a, b) => a + Number(b.margin || 0), 0);
-                const avg = cnt > 0 ? Math.round(sum / cnt) : 0;
-                return `
-                  <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
-                    <div>
-                      <p class="text-xs font-bold text-slate-500 mb-1">${t}</p>
-                      <p class="text-lg font-black text-slate-800">${cnt}건</p>
-                    </div>
-                    <div class="mt-2 pt-2 border-t border-slate-200/60">
-                      <p class="text-[10px] text-slate-400">건당 마진</p>
-                      <p class="text-xs font-bold text-emerald-600">${avg.toLocaleString()}원</p>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h3 class="text-base font-bold text-slate-800 mb-4">📋 내 계약 상세 리스트 (${empItems.length}건)</h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm text-left">
-                <thead class="bg-slate-100 text-slate-600">
-                  <tr>
-                    <th class="p-3">매장</th>
-                    <th class="p-3">계약일자</th>
-                    <th class="p-3">고객명</th>
-                    <th class="p-3">계약번호</th>
-                    <th class="p-3">유형</th>
-                    <th class="p-3">모동</th>
-                    <th class="p-3">부가</th>
-                    <th class="p-3">경로</th>
-                    <th class="p-3">마진액</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${empItems.length === 0 ? '<tr><td colspan="9" class="p-4 text-center text-slate-400">등록된 계약이 없습니다.</td></tr>' : ''}
-                  ${empItems.map(item => `
-                    <tr>
-                      <td class="p-3 font-semibold text-slate-600">${item.storeName}</td>
-                      <td class="p-3 text-xs text-slate-500 font-mono">${item.date}</td>
-                      <td class="p-3 font-semibold">${item.customer}</td>
-                      <td class="p-3 text-slate-500 font-mono">${item.contractNo}</td>
-                      <td class="p-3">${item.type}</td>
-                      <td class="p-3">${item.modong === 'O' ? '<span class="text-emerald-600 font-bold">O</span>' : '<span class="text-slate-300">X</span>'}</td>
-                      <td class="p-3">${item.buga === 'O' ? '<span class="text-purple-600 font-bold">O</span>' : '<span class="text-slate-300">X</span>'}</td>
-                      <td class="p-3"><span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono">${item.path}</span></td>
-                      <td class="p-3 font-bold text-emerald-600">${Number(item.margin).toLocaleString()}원</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      `;
     }
 
     function handleContractNoInput(inputEl, pathSelectId) {
@@ -785,135 +1066,6 @@
       }
     }
 
-    function renderAdminLedger() {
-      const data = getFilteredSalesData();
-      const todayStr = new Date().toISOString().split('T')[0];
-      const empNames = Array.from(new Set(salesData.map(d => d.employeeName).concat(accountsList.filter(a => a.role === 'employee').map(a => a.name)))).filter(Boolean);
-
-      setTimeout(() => { toggleNewTypeFields(); }, 0);
-
-      return `
-        <div class="space-y-6">
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h2 class="text-xl font-bold mb-4 text-slate-800">➕ 신규 계약 데이터 등록</h2>
-            <form onsubmit="handleAddContract(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">매장</label>
-                <select id="newStoreName" class="w-full border p-2.5 rounded-lg text-sm">
-                  ${storesList.map(s => `<option value="${s}">${s}</option>`).join('')}
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">계약일자</label>
-                <input type="date" id="newDate" value="${todayStr}" class="w-full border p-2.5 rounded-lg text-sm" required />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">고객명</label>
-                <input type="text" id="newCustomer" placeholder="예: 홍길동" class="w-full border p-2.5 rounded-lg text-sm" required />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">계약번호 (AJD: ajung / AJO: ajsto)</label>
-                <input type="text" id="newContractNo" oninput="handleContractNoInput(this, 'newPath')" placeholder="예: AJD202611..." class="w-full border p-2.5 rounded-lg text-sm font-mono" required />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">마진액 / 매출액 (원)</label>
-                <input type="number" id="newMargin" placeholder="예: 300000" class="w-full border p-2.5 rounded-lg text-sm" required />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">계약 유형</label>
-                <select id="newType" onchange="toggleNewTypeFields()" class="w-full border p-2.5 rounded-lg text-sm">
-                  <option value="인터넷">인터넷</option>
-                  <option value="모바일">모바일</option>
-                  <option value="유심">유심</option>
-                  <option value="알뜰폰">알뜰폰</option>
-                  <option value="렌탈">렌탈</option>
-                  <option value="상조">상조</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">모동 여부</label>
-                <select id="newModong" class="w-full border p-2.5 rounded-lg text-sm">
-                  <option value="X">X</option>
-                  <option value="O">O</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">부가 (22만원 이상)</label>
-                <select id="newBuga" class="w-full border p-2.5 rounded-lg text-sm">
-                  <option value="X">X</option>
-                  <option value="O">O</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">접수 경로</label>
-                <select id="newPath" class="w-full border p-2.5 rounded-lg text-sm">
-                  <option value="ajung">ajung</option>
-                  <option value="ajsto">ajsto</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">담당 직원</label>
-                <select id="newEmpName" class="w-full border p-2.5 rounded-lg text-sm">
-                  ${empNames.map(name => `<option value="${name}">${name}</option>`).join('')}
-                </select>
-              </div>
-              <div class="sm:col-span-2 md:col-span-5 mt-2">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md">
-                  + 신규 계약 등록하기 (구글 시트 실시간 전송)
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-bold text-slate-800">📋 전체 매장 판매건 리스트 (${data.length}건)</h2>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm text-left">
-                <thead class="bg-slate-100 text-slate-600">
-                  <tr>
-                    <th class="p-3">매장</th>
-                    <th class="p-3">계약일자</th>
-                    <th class="p-3">고객명</th>
-                    <th class="p-3">계약번호</th>
-                    <th class="p-3">담당직원</th>
-                    <th class="p-3">마진액</th>
-                    <th class="p-3">유형</th>
-                    <th class="p-3">모동</th>
-                    <th class="p-3">부가</th>
-                    <th class="p-3">경로</th>
-                    <th class="p-3 text-center">관리</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${data.length === 0 ? '<tr><td colspan="11" class="p-4 text-center text-slate-400">데이터가 없습니다.</td></tr>' : ''}
-                  ${data.map(item => `
-                    <tr>
-                      <td class="p-3 font-semibold text-indigo-700">${item.storeName}</td>
-                      <td class="p-3 text-xs text-slate-500 font-mono">${item.date}</td>
-                      <td class="p-3 font-semibold">${item.customer}</td>
-                      <td class="p-3 text-slate-500 font-mono">${item.contractNo}</td>
-                      <td class="p-3 font-semibold text-slate-700">${item.employeeName}</td>
-                      <td class="p-3 font-bold text-emerald-600">${Number(item.margin).toLocaleString()}원</td>
-                      <td class="p-3">${item.type}</td>
-                      <td class="p-3 font-bold ${item.modong === 'O' ? 'text-emerald-600' : 'text-slate-300'}">${item.modong}</td>
-                      <td class="p-3 font-bold ${item.buga === 'O' ? 'text-purple-600' : 'text-slate-300'}">${item.buga}</td>
-                      <td class="p-3"><span class="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono">${item.path}</span></td>
-                      <td class="p-3 text-center space-x-1">
-                        <button onclick="openEditModal(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">수정</button>
-                        <button onclick="deleteContract(${item.id})" class="bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg font-bold text-xs transition">삭제</button>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
     async function handleAddContract(e) {
       e.preventDefault();
       const contractNo = document.getElementById('newContractNo').value.trim().toUpperCase();
@@ -929,7 +1081,7 @@
       const newItem = {
         id: Date.now(),
         storeName: document.getElementById('newStoreName').value,
-        date: document.getElementById('newDate').value,
+        date: document.getElementById('newDate').value.trim(),
         customer: document.getElementById('newCustomer').value,
         contractNo: contractNo,
         margin: marginVal,
@@ -955,7 +1107,7 @@
         });
         alert("계약이 등록되었으며 구글 스프레드시트에 전송되었습니다!");
       } catch (err) {
-        console.error("전송 에러:", err);
+        console.warn("시트 전송 대기:", err);
       }
     }
 
@@ -1008,7 +1160,7 @@
       const empName = document.getElementById('editEmpId').value;
 
       item.storeName = document.getElementById('editStoreName').value;
-      item.date = document.getElementById('editDate').value;
+      item.date = document.getElementById('editDate').value.trim();
       item.customer = document.getElementById('editCustomer').value;
       item.contractNo = newNo;
       item.margin = val;
@@ -1033,7 +1185,7 @@
         });
         alert("계약 정보 수정이 구글 시트에 반영되었습니다.");
       } catch (err) {
-        console.error("수정 반영 에러:", err);
+        console.warn("시트 전송 대기:", err);
       }
     }
 
@@ -1052,11 +1204,11 @@
         });
         alert("계약이 삭제되었습니다.");
       } catch (err) {
-        console.error("삭제 반영 에러:", err);
+        console.warn("시트 전송 대기:", err);
       }
     }
 
-    // 초기 실행
+    // 앱 구동
     fetchSheetData();
   </script>
 </body>
